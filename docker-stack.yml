@@ -1,0 +1,17 @@
+Set-Content -Path docker-stack.yml -Value @"
+version: '3.8'
+
+services:
+  web:
+    image: 251528148716.dkr.ecr.ap-southeast-2.amazonaws.com/my-app-h2:v1
+    ports:
+      - "80:80"
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+"@

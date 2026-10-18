@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fc">
+  <title>Welcome — Your next chapter starts here</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18233b;
+      --muted: #65718a;
+      --accent: #635bff;
+      --line: #e8ebf3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: #f6f8fc;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .page {
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(ellipse at 50% 45%, #fff 0, #fff 34%, #f6f8fc 76%);
+    }
+    .page::before, .page::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      width: 360px;
+      height: 360px;
+      border: 1px solid rgba(99, 91, 255, .08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .page::before { top: 110px; left: -245px; box-shadow: 0 0 0 38px rgba(99,91,255,.025), 0 0 0 78px rgba(99,91,255,.02); }
+    .page::after { right: -260px; bottom: 30px; box-shadow: 0 0 0 42px rgba(99,91,255,.025), 0 0 0 84px rgba(99,91,255,.02); }
+    header, main, footer { position: relative; z-index: 1; }
+    header {
+      width: min(1120px, calc(100% - 48px));
+      margin: 0 auto;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -.04em; font-size: 19px; }
+    .mark {
+      width: 34px; height: 34px; display: grid; place-items: center;
+      color: white; border-radius: 11px;
+      background: linear-gradient(145deg, #817aff, #554cf0);
+      box-shadow: 0 5px 14px rgba(99,91,255,.24);
+    }
+    .mark svg { width: 19px; height: 19px; }
+    .header-note { color: var(--muted); font-size: 13px; }
+    main { flex: 1; display: grid; place-items: center; padding: 54px 24px 78px; }
+    .hero { width: min(750px, 100%); text-align: center; animation: arrive .7s ease both; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 13px; border: 1px solid #e7e5ff; border-radius: 99px;
+      background: #f5f4ff; color: #554cf0; font-size: 12px; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+    }
+    .eyebrow span { width: 7px; height: 7px; border-radius: 50%; background: #635bff; box-shadow: 0 0 0 3px #dedcff; }
+    h1 { margin: 25px 0 16px; font-size: clamp(46px, 8vw, 76px); line-height: 1.04; letter-spacing: -.065em; font-weight: 760; }
+    h1 em { color: var(--accent); font-style: normal; }
+    .intro { max-width: 535px; margin: 0 auto; color: var(--muted); font-size: 17px; line-height: 1.75; }
+    .actions { margin: 32px 0 0; display: flex; justify-content: center; align-items: center; gap: 13px; flex-wrap: wrap; }
+    .button { min-height: 48px; padding: 0 21px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 650; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+    .button:hover { transform: translateY(-2px); }
+    .primary { color: white; background: var(--accent); box-shadow: 0 8px 18px rgba(99,91,255,.23); }
+    .primary:hover { background: #5149eb; box-shadow: 0 11px 22px rgba(99,91,255,.28); }
+    .secondary { color: #34405a; border: 1px solid var(--line); background: white; }
+    .secondary:hover { box-shadow: 0 6px 18px rgba(24,35,59,.07); }
+    .button svg { width: 16px; height: 16px; }
+    .features { max-width: 650px; margin: 68px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; text-align: left; }
+    .feature { display: flex; gap: 12px; align-items: flex-start; }
+    .feature-icon { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 10px; background: #f0efff; color: var(--accent); }
+    .feature-icon svg { width: 17px; height: 17px; }
+    .feature strong { display: block; margin: 1px 0 5px; font-size: 13px; }
+    .feature p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    footer { min-height: 68px; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(232,235,243,.75); color: #8992a5; font-size: 12px; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 600px) {
+      header { width: calc(100% - 36px); height: 72px; }
+      .header-note { font-size: 11px; }
+      main { padding: 42px 22px 58px; }
+      .intro { font-size: 15px; }
+      .features { margin-top: 52px; grid-template-columns: 1fr; gap: 18px; max-width: 300px; }
+      .feature { align-items: center; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 16.5 10 7l3 5 2-3 4 7.5H5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/></svg></span>
+        <span>Northstar</span>
+      </div>
+      <span class="header-note">A little space to do great things</span>
+    </header>
+    <main>
+        <h2>Welcome to what's next - Deployed via Jenkins CI/CD!</h2>
+        <h2>Automated CI/CD Deployment - Version 2</h2>
+        <h2>Automated CI/CD Deployment - Version 3</h2>
+      <section class="hero" aria-labelledby="welcome-title">
+        <div class="eyebrow"><span></span> Your space starts here</div>
+        <h1 id="welcome-title">Welcome to<br><em>what’s next.</em></h1>
+        <p class="intro">A fresh start, a clear view, and everything you need to make your next big idea happen. We’re glad you’re here.</p>
+        <div class="actions">
+          <a class="button primary" href="#get-started">Get started <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="button secondary" href="#learn-more">Take a look around</a>
+        </div>
+        <div class="features" id="learn-more" aria-label="What you can expect">
+          <div class="feature">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M10 2.5 12 7l4.5 2-4.5 2-2 4.5L8 11l-4.5-2L8 7l2-4.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+            <div><strong>Made for momentum</strong><p>Simple tools to help good ideas take shape.</p></div>
+          </div>
+          <div class="feature">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M3 10.5 7.2 14 17 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Clarity at every step</strong><p>Keep your focus on what matters most.</p></div>
+          </div>
+          <div class="feature" id="get-started">
+            <span class="feature-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M10 17s6-3.3 6-8V4.5l-6-2-6 2V9c0 4.7 6 8 6 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m7.5 9.5 1.7 1.7 3.5-3.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Room to grow</strong><p>A welcoming foundation for whatever’s next.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>Built for bright beginnings <span aria-hidden="true">&nbsp;·&nbsp;</span> Made with care</footer>
+  </div>
+</body>
+</html>
