@@ -21,22 +21,28 @@ pipeline {
         ECR_REGISTRY   = '251528148716.dkr.ecr.ap-southeast-2.amazonaws.com'
         MANAGER_IP     = '32.236.227.255'
         SERVICE_NAME   = 'my-stack_web'
-        DEPLOY_VERSION = ''
     }
 
     stages {
         stage('Resolve Target Version') {
             steps {
                 script {
+                    def targetVer = ''
                     if (env.TAG_NAME) {
-                        env.DEPLOY_VERSION = env.TAG_NAME
-                        echo "Triggered by Git tag push: ${env.DEPLOY_VERSION}"
+                        targetVer = env.TAG_NAME
                     } else if (params.VERSION?.trim()) {
-                        env.DEPLOY_VERSION = params.VERSION.trim()
-                        echo "Version set via parameters: ${env.DEPLOY_VERSION}"
+                        targetVer = params.VERSION.trim()
                     } else {
-                        error("Deployment halted: No VERSION provided and not triggered by a Git tag.")
+                        // Fallback: extract latest git tag from workspace checkout
+                        targetVer = sh(script: 'git describe --tags --always', returnStdout: true).trim()
                     }
+
+                    if (!targetVer) {
+                        error("Deployment halted: No target version found.")
+                    }
+
+                    env.DEPLOY_VERSION = targetVer
+                    echo "Deploying version: ${env.DEPLOY_VERSION} with action: ${params.ACTION}"
                 }
             }
         }
@@ -55,7 +61,7 @@ pipeline {
                 expression { params.ACTION in ['build', 'deploy'] }
             }
             steps {
-                sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DEPLOY_VERSION} ."
+                sh "docker build -t ${env.ECR_REGISTRY}/${env.ECR_REPO_NAME}:${env.DEPLOY_VERSION} ."
             }
         }
 
@@ -73,9 +79,9 @@ pipeline {
                         docker run --rm \
                           -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
                           -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
-                          -e AWS_DEFAULT_REGION="${AWS_REGION}" \
-                          amazon/aws-cli ecr get-login-password --region "${AWS_REGION}" | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
-                        docker push "${ECR_REGISTRY}/${ECR_REPO_NAME}:${DEPLOY_VERSION}"
+                          -e AWS_DEFAULT_REGION="${env.AWS_REGION}" \
+                          amazon/aws-cli ecr get-login-password --region "${env.AWS_REGION}" | docker login --username AWS --password-stdin "${env.ECR_REGISTRY}"
+                        docker push "${env.ECR_REGISTRY}/${env.ECR_REPO_NAME}:${env.DEPLOY_VERSION}"
                     """
                 }
             }
@@ -92,12 +98,12 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     sh """
-                        echo "Verifying image tag ${DEPLOY_VERSION} exists in Amazon ECR..."
+                        echo "Verifying image tag ${env.DEPLOY_VERSION} exists in Amazon ECR..."
                         docker run --rm \
                           -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
                           -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
-                          -e AWS_DEFAULT_REGION="${AWS_REGION}" \
-                          amazon/aws-cli ecr describe-images --repository-name ${ECR_REPO_NAME} --image-ids imageTag=${DEPLOY_VERSION} --region ${AWS_REGION} > /dev/null
+                          -e AWS_DEFAULT_REGION="${env.AWS_REGION}" \
+                          amazon/aws-cli ecr describe-images --repository-name ${env.ECR_REPO_NAME} --image-ids imageTag=${env.DEPLOY_VERSION} --region ${env.AWS_REGION} > /dev/null
                     """
                 }
             }
@@ -110,10 +116,10 @@ pipeline {
             steps {
                 sshagent(['swarm-manager-ssh']) {
                     sh """
-                        echo "Executing service update to image tag: ${DEPLOY_VERSION} on Docker Swarm..."
-                        ssh -o StrictHostKeyChecking=no ubuntu@${MANAGER_IP} "
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                            docker service update --image ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DEPLOY_VERSION} --with-registry-auth ${SERVICE_NAME}
+                        echo "Executing service update to image tag: ${env.DEPLOY_VERSION} on Docker Swarm..."
+                        ssh -o StrictHostKeyChecking=no ubuntu@${env.MANAGER_IP} "
+                            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REGISTRY}
+                            docker service update --image ${env.ECR_REGISTRY}/${env.ECR_REPO_NAME}:${env.DEPLOY_VERSION} --with-registry-auth ${env.SERVICE_NAME}
                         "
                     """
                 }
